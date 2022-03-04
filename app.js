@@ -7,6 +7,9 @@ const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 
 
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
+
 // get config consts
 dotenv.config();
 console.log("Salt rounds are:", process.env.SALT_ROUNDS);
@@ -15,21 +18,21 @@ console.log("secret key is ", secretKey)
 
 
 
-const token = jwt.sign({
-  data: 'Free the ducks'
-}, 
-secretKey , // hide from everyone but our app
-{ expiresIn: '1h' });
+// const token = jwt.sign({
+//   data: 'Free the ducks'
+// }, 
+// secretKey , // hide from everyone but our app
+// { expiresIn: '1h' });
 
-//verify a toek
-jwt.verify(
-  token,
-  secretKey,
-  function(err, decoded) {
-    console.log("Decoded", decoded);
-  }
-)
-console.log(token);
+// //verify a toek
+// jwt.verify(
+//   token,
+//   secretKey,
+//   function(err, decoded) {
+//     console.log("Decoded", decoded);
+//   }
+// )
+// console.log(token);
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');

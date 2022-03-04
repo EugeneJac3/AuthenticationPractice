@@ -54,54 +54,37 @@ router.post('/register', async (req,res, next) => {
 // login
 
 router.post('/login', async (req,res, next)=>{
-
-  const {username, password} = req.body // Req.body is the index.ejs,  given the path in the body
-
-
+const {username, password} = req.body // Req.body is the index.ejs,  given the path in the body
 const hash = bcrypt.hashSync(password, saltRounds);
-
-
-const users = await User.findOne({
+const user = await User.findOne({
   where:{
     username: username
   }
 });
-// res.json(users);
+console.log(user);
+const dbPassword = user.password
 
-const dbPassword = users.password
-// console.log("db password", dbPassword)
-// console.log("hashed password", hash);
-const comparePass = bcrypt.compareSync(password, dbPassword);
-
-// console.log("compare", comparePass)
-
-
-if (comparePass){
-    // res.render("Next EJS/HTML", {   // To render on the page with HTML
-    //   USER DATA
-    // })
-  res.json(users)
-console.log("Authorized")
-} else {
-  console.log("No user found");
-}
+const comparePass = bcrypt.compareSync(hash, dbPassword);
 
 
 
-// console.log(users)
 
-// console.log("my password", password);
-// console.log("my hashed password", hash);
-// console.log("Is password correct", comparePass)
-// console.log("Is wrong password correct", wrongComparePass);
+// if (comparePass){
+//     const token = jwt.sign({
+//       data: 'Free the ducks'
+//     }, 
+//     secretKey , // hide from everyone but our app
+//     { expiresIn: '1h' });
+    
+//   res.cookie('Token', token)
+// console.log("Authorized")
+// } else {
+//   console.log("No user found");
+// }
 
+res.send("works");
 
-// bcrypt.hash(password, saltRounds, (err,hash) =>{
-
-// });
-
-// res.render('index');
-})
+});
 
 
 module.exports = router;
