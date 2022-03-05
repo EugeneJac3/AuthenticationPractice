@@ -3,7 +3,10 @@ var router = express.Router();
 const { User } = require('../models');
 const bcrypt = require("bcrypt");
 const saltRounds = process.env.SALT_ROUNDS
-// console.log(User)
+const cookieParser = require('cookie-parser');
+const {sign, verify } = require("jsonwebtoken")
+
+
 
 
 console.log("user.js Salt rounds are:", process.env.SALT_ROUNDS);
@@ -53,8 +56,85 @@ router.post('/register', async (req,res, next) => {
 
 // login
 
+
+// YT Example
+
+
+const createToken = (user) => {
+  const accessToken = sign({username: user.username, id: user.id}, "jwtsecretplschange"
+  );
+
+  return accessToken;
+  };
+
+
+
+
+
 router.post('/login', async (req,res, next)=>{
-const {username, password} = req.body // Req.body is the index.ejs,  given the path in the body
+  const {username, password} = req.body 
+  
+  const user = await User.findOne({
+    where: {
+      username: username
+    }
+  });
+
+  if (!user) res.status(400).json({error: "User doesnt exist"});
+
+  const dbpassword = user.password
+  bcrypt.compare(password, dbpassword).then((match)=>{
+    if (!match){
+      res.status(400).json({error:"wrong username and password combination!"})
+    } else {
+
+      const accessToken = createToken(user)
+
+      res.cookie("access-token", accessToken, {
+        maxAge: 60*60*24*30*1000
+      })
+
+      res.json("Logged In")
+    }
+  });
+  
+  
+  });
+
+
+  const validateToken = (req,res, next) =>{
+    const accessToken = req.cookies["access-token"]
+
+    if (!accessToken) return res.status(400).json({error:"User not authenticated!"});
+
+    try {
+      const validToken = verify (accessToken, "jwtsecretplschange")
+      if (validToken) {
+        req.authenticated = true
+        return next()
+      }
+    } catch(err) {
+      return res.status(400).json({error: err});
+    }
+  };
+
+
+  router.get("/profile", validateToken, (req, res) => {
+    res.json("profile");
+  })
+
+
+  // console.log(user);
+  // const dbPassword = user.password
+  
+  // const comparePass = bcrypt.compareSync(hash, dbPassword);
+
+
+
+
+// DC Example
+router.post('/login', async (req,res, next)=>{
+const {username, password} = req.body 
 const hash = bcrypt.hashSync(password, saltRounds);
 const user = await User.findOne({
   where:{
